@@ -1,4 +1,4 @@
-CC = gcc.exe -g
+CC = gcc.exe
 AR = ar.exe
 
 INC = -Iinclude -Isrc
@@ -6,17 +6,20 @@ LIB = -Llib
 
 STATIC_OBJDIR = obj\\memAlMan\\static
 STATIC_OBJ = $(STATIC_OBJDIR)\\Manager.o $(STATIC_OBJDIR)\\Client.o
-STATIC_CFLAGS = -Wall -O2 -DDEBUG
+STATIC_CFLAGS = -Wall -O2
+#STATIC_CFLAGS = -g -Wall -O2 -DDEBUG
 STATIC_BIN = lib\\libmemAlMan.a
 
 SHARED_OBJDIR = obj\\memAlMan\\shared
 SHARED_OBJ = $(SHARED_OBJDIR)\\Manager.o $(SHARED_OBJDIR)\\Client.o
-SHARED_CFLAGS = -Wall -fPIC -DBUILDINGDLL -DDEBUG
+SHARED_CFLAGS = -Wall -fPIC -DBUILDINGDLL
+#SHARED_CFLAGS = -g -Wall -fPIC -DBUILDINGDLL -DDEBUG
 SHARED_BIN = lib\\libmemAlMan.so
 
 TEST_OBJDIR = obj\\memAlMan\\static
 TEST_OBJ = $(TEST_OBJDIR)\\main.o
-TEST_CFLAGS = -Wall -O2 -DDEBUG
+TEST_CFLAGS = -Wall -O2
+#TEST_CFLAGS = -g -Wall -O2 -DDEBUG
 TEST_CLIBS = $(STATIC_BIN)
 TEST_BIN = memAlManTest.exe
 

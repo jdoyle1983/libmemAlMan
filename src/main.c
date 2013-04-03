@@ -45,5 +45,7 @@ int main(int argc, char* argv[])
 
 	memAlMan_Cleanup();
 	
+	free(src);
+	
 	return 0;
 };
