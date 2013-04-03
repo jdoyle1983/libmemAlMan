@@ -54,9 +54,17 @@ EXPORT void* mamDuplicate(void* mam);
 EXPORT void* mamRaw(void* mam);
 EXPORT unsigned long mamRawSize(void* mam);
 
+//String Helper
 #define mamStrLen(m) (strlen(mamRaw(m)))
 #define mamStrCpy(m, s) (mamCopy(m, 0, s, (unsigned long)strlen(s) + 1))
+
+//File IO Helper
+#define mamFread(m, s, c, f) (fread(mamRaw(m), s, c, f))
+#define mamFwrite(m, s, c, f) (fwrite(mamRaw(m), s, c, f))
+
+//General Helper
 #define mamCast(m, t) ((t)mamRaw(m))
+
 
 #ifdef __cplusplus
 }
