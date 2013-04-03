@@ -34,7 +34,7 @@ test: $(TEST_BIN)
 clean:
 	rm -f $(STATIC_BIN)
 	rm -f $(SHARED_BIN)
-	4m -f $(TEST_BIN)
+	rm -f $(TEST_BIN)
 	rm -f $(STATIC_OBJDIR)/*.o
 	rm -f $(SHARED_OBJDIR)/*.o
 	
@@ -53,7 +53,7 @@ $(STATIC_OBJDIR)/Manager.o: src/Manager.c
 $(STATIC_OBJDIR)/Client.o: src/Client.c
 	$(CC) $(STATIC_CFLAGS) $(INC) -c src/Client.c -o $(STATIC_OBJDIR)/Client.o
 	
-$(SHARED_OBJDIR)/Manager.o: src/Manager.o
+$(SHARED_OBJDIR)/Manager.o: src/Manager.c
 	$(CC) $(SHARED_CFLAGS) $(INC) -c src/Manager.c -o $(SHARED_OBJDIR)/Manager.o
 	
 $(SHARED_OBJDIR)/Client.o: src/Client.c
