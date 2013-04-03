@@ -5,8 +5,20 @@ AllocUnit** Units = NULL;
 unsigned long UnitCount;
 unsigned long UnitId;
 
+void(*mamThreadLock)() = NULL;
+void(*mamThreadUnLock)() = NULL;
+
+void mamLockStub()
+{
+}
+
+void mamUnLockStub()
+{
+}
+
 void AllocUnit_Delete(AllocUnit* u)
 {
+	mamThreadLock();
 	unsigned long Idx = 0;
 	unsigned long i = 0;
 	for(i = 0; i < UnitCount; i++)
@@ -16,15 +28,23 @@ void AllocUnit_Delete(AllocUnit* u)
 		free(u->Memory);
 	free(u);
 	Units[Idx] = NULL;
+	mamThreadUnLock();
 };
 
 AllocUnit* AllocUnit_GetById(unsigned long Id)
 {
+	AllocUnit* r = NULL;
+	
+	mamThreadLock();
+	
 	unsigned long i = 0;
-	for(i = 0; i < UnitCount; i++)
+	for(i = 0; i < UnitCount && r == NULL; i++)
 		if(Units[i] != NULL && Units[i]->Id == Id)
-			return Units[i];
-	return NULL;
+			r = Units[i];
+
+	mamThreadUnLock();
+	
+	return r;
 };
 
 AllocUnit* AllocUnit_New()
@@ -36,6 +56,8 @@ AllocUnit* AllocUnit_New()
 	r->Memory = NULL;
 	r->Id = UnitId;
 	UnitId++;
+	
+	mamThreadLock();
 	
 	bool found = false;
 	unsigned i = 0;
@@ -55,11 +77,23 @@ AllocUnit* AllocUnit_New()
 		Units[UnitCount - 1] = r;
 	}
 	
+	mamThreadUnLock();
+	
 	return r;
 };
 
-EXPORT void memAlMan_Init()
+EXPORT void memAlMan_Init(void(*mamLock)(), void(*mamUnLock)())
 {
+	if(mamLock == NULL)
+		mamThreadLock = &mamLockStub;
+	else
+		mamThreadLock = mamLock;
+		
+	if(mamUnLock == NULL)
+		mamThreadUnLock = &mamUnLockStub;
+	else
+		mamThreadUnLock = mamUnLock;
+		
 	UnitCount = 0;
 	UnitId = 0;
 	Units = (AllocUnit**)malloc(0);
@@ -70,6 +104,8 @@ EXPORT void memAlMan_Init()
 
 EXPORT void memAlMan_Cleanup()
 {
+	mamThreadLock();
+	
 	unsigned long i = 0;
 	for(i = 0; i < UnitCount; i++)
 		if(Units[i] != NULL)
@@ -81,5 +117,17 @@ EXPORT void memAlMan_Cleanup()
 	#ifdef DEBUG
 		printf("mamDebug: memAlMan_Cleanup (System Cleaned Up)\n");
 	#endif
+	
+	mamThreadUnLock();
+};
+
+EXPORT void memAlMan_ThreadLock()
+{
+	mamThreadLock();
+};
+
+EXPORT void memAlMan_ThreadUnLock()
+{
+	mamThreadUnLock();
 };
 

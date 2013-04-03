@@ -16,8 +16,10 @@ extern "C" {
 #endif
 
 
-EXPORT void memAlMan_Init();
+EXPORT void memAlMan_Init(void(*mamLock)(), void(*mamUnLock)());
 EXPORT void memAlMan_Cleanup();
+EXPORT void memAlMan_ThreadLock();
+EXPORT void memAlMan_ThreadUnLock();
 
 EXPORT void* mamAlloc(unsigned long Size);
 EXPORT void mamCopy(void* mam, unsigned long Offset, void* Src, unsigned long Size);

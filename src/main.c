@@ -1,9 +1,17 @@
 #include <memAlMan.h>
 
+void Lock()
+{
+}
+
+void UnLock()
+{
+}
+
 int main(int argc, char* argv[])
 {
-	memAlMan_Init();
-	
+	//memAlMan_Init(NULL, NULL);
+	memAlMan_Init(&Lock, &UnLock);
 	int i = 0;
 	
 	void* setA = mamAlloc(1000);
