@@ -8,3 +8,6 @@ Features:
 * Maintainence routine to keep the library memory footprint small for long
   running applications.
 * Global cleanup routine to ensure all memory used is properly freed.
+* Multi-Threading ready, routines in place to lock the data to ensure multiple
+  threads can play nice with managed memory. (Application must implement locking
+  mechanism).
