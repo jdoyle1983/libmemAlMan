@@ -47,6 +47,7 @@ EXPORT void memAlMan_ThreadUnLock();
 
 EXPORT void* mamAlloc(unsigned long Size);
 EXPORT void mamCopy(void* mam, unsigned long Offset, void* Src, unsigned long Size);
+EXPORT void* mamInherit(void* Src, unsigned long Size);
 EXPORT void* mamRetain(void* mam);
 EXPORT void mamRelease(void* mam);
 EXPORT void mamRealloc(void* mam, unsigned long NewSize);

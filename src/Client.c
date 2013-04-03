@@ -28,12 +28,15 @@
 EXPORT void* mamAlloc(unsigned long Size)
 {
 	AllocUnit* u = AllocUnit_New();
+	
 	u->s = Size;
 	u->m = malloc(u->s);
+	
 	#ifdef DEBUG
 		printf("mamDebug: mamAlloc (Id: %ld - Size: %ld)\n", u->i, u->s);
 	#endif
-	return (unsigned long)u->i;
+	
+	return (void*)u->i;
 };
 
 EXPORT void mamCopy(void* mam, unsigned long Offset, void* Src, unsigned long Size)
@@ -54,6 +57,20 @@ EXPORT void mamCopy(void* mam, unsigned long Offset, void* Src, unsigned long Si
 	}
 };
 
+EXPORT void* mamInherit(void* Src, unsigned long Size)
+{
+	AllocUnit* u = AllocUnit_New();
+	
+	u->s = Size;
+	u->m = Src;
+	
+	#ifdef DEBUG
+		printf("mamDebug: mamInherit (Id: %ld - Size: %ld)\n", u->i, u->s);
+	#endif
+	
+	return (void*)u->i;
+};
+
 EXPORT void* mamRetain(void* mam)
 {
 	AllocUnit* u = AllocUnit_GetById((unsigned long)mam);
@@ -63,7 +80,7 @@ EXPORT void* mamRetain(void* mam)
 		#ifdef DEBUG
 			printf("mamDebug: mamRetain (Id: %ld - RefCount: %ld) - SUCCESS\n", u->i, u->r);
 		#endif
-		return u->i;
+		return (void*)u->i;
 	}
 	else
 	{
@@ -136,7 +153,7 @@ EXPORT void* mamDuplicate(void* mam)
 			printf("mamDebug: mamDuplicate (Id: %ld - New Id: %ld) - SUCCESS\n", u->i, un->i);
 		#endif
 		
-		return un->i;
+		return (void*)un->i;
 	}
 	else
 	{
