@@ -1,3 +1,28 @@
+/*
+
+    libmemAlMan
+    Copyright (C) 2013 Jason Doyle
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+    Contact Information:
+
+    Original Author: Jason Doyle (jdoyle1983@gmail.com)
+	
+*/
+
+
 #include <memAlMan.h>
 #include <Internal.h>
 
@@ -27,10 +52,10 @@ void AllocUnit_Delete(AllocUnit* u)
 	unsigned long Idx = 0;
 	unsigned long i = 0;
 	for(i = 0; i < UnitCount; i++)
-		if(Units[i] != NULL && Units[i]->Id == u->Id)
+		if(Units[i] != NULL && Units[i]->i == u->i)
 			Idx = i;
-	if(u->Memory != NULL)
-		free(u->Memory);
+	if(u->m != NULL)
+		free(u->m);
 	free(u);
 	Units[Idx] = NULL;
 	mamThreadUnLock();
@@ -47,7 +72,7 @@ AllocUnit* AllocUnit_GetById(unsigned long Id)
 	
 	unsigned long i = 0;
 	for(i = 0; i < UnitCount && r == NULL; i++)
-		if(Units[i] != NULL && Units[i]->Id == Id)
+		if(Units[i] != NULL && Units[i]->i == Id)
 			r = Units[i];
 
 	mamThreadUnLock();
@@ -62,10 +87,10 @@ AllocUnit* AllocUnit_New()
 		
 	AllocUnit* r = NULL;
 	r = (AllocUnit*)malloc(sizeof(AllocUnit));
-	r->RefCount = 1;
-	r->Size = 0;
-	r->Memory = NULL;
-	r->Id = UnitId;
+	r->r = 1;
+	r->s = 0;
+	r->m = NULL;
+	r->i = UnitId;
 	UnitId++;
 	
 	mamThreadLock();
@@ -120,6 +145,42 @@ void memAlMan_Init()
 	#ifdef DEBUG
 		printf("mamDebug: memAlMan_Init (System Initialized)\n");
 	#endif
+};
+
+EXPORT void memAlMan_Maintain()
+{
+	mamThreadLock();
+	
+	unsigned long largeId = 0;
+	unsigned long usedCount = 0;
+	unsigned long i = 0;
+	for(i = 0; i < UnitCount; i++)
+	{
+		if(Units[i] != NULL)
+			usedCount++;
+			
+		if(Units[i] != NULL && Units[i]->i >= largeId)
+			largeId = Units[i]->i + 1;
+	}
+	UnitId = largeId;
+	if(usedCount != UnitCount)
+	{
+		AllocUnit** newList = malloc(sizeof(AllocUnit*) * usedCount);
+		unsigned long cId = 0;
+		for(i = 0; i < UnitCount; i++)
+		{
+			if(Units[i] != NULL)
+			{
+				newList[cId] = Units[i];
+				cId++;
+			}
+		}
+		free(Units);
+		Units = newList;
+		UnitCount = usedCount;
+	}
+	
+	mamThreadUnLock();
 };
 
 EXPORT void memAlMan_Cleanup()
