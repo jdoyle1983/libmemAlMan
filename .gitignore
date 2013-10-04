@@ -1,0 +1,8 @@
+/lib/libmemAlMan.a
+/lib/libmemAlMan.so
+/memAlManTest.exe
+/obj/memAlMan/shared/Client.o
+/obj/memAlMan/shared/Manager.o
+/obj/memAlMan/static/Client.o
+/obj/memAlMan/static/Manager.o
+/obj/memAlMan/static/main.o
