@@ -39,20 +39,103 @@ extern "C" {
 #define EXPORT
 #endif
 
+/*
+	Enable system wide thread locking / unlocking mechanism.
+	Your application must implement the locking system, and
+	libmemAlMan will call it as necessary.
+	mamLock: The method that will be called when attempting to get a lock
+	mamUnLock: The method that will be called when releasing a lock
+*/
 EXPORT void memAlMan_EnableThreads(void(*mamLock)(), void(*mamUnLock)());
+
+/*
+	Free up all system memory, this should be called on application
+	exit.
+*/
 EXPORT void memAlMan_Cleanup();
+
+/*
+	Clean up internal memAlMan data, this should be called occasionally
+	in a long running application to prevent memory usage creep.
+*/
 EXPORT void memAlMan_Maintain();
+
+/*
+	Call the system implemented locking mechanism
+*/
 EXPORT void memAlMan_ThreadLock();
+
+/*
+	Call the system implemented unlocking mechanism
+*/
 EXPORT void memAlMan_ThreadUnLock();
 
+/*
+	Allocate a new block of managed system memory
+	Size: The size of the memory block in bytes
+	Returns: A managed memory block
+*/
 EXPORT void* mamAlloc(unsigned long Size);
+
+/*
+	Copy raw data into a managed memory block
+	mam: Managed memory to copy data into
+	Offset: Offset in the source data to start copying
+	Src: Src raw memory buffer
+	Size: Size of the data to copy
+*/
 EXPORT void mamCopy(void* mam, unsigned long Offset, void* Src, unsigned long Size);
+
+/*
+	Bring an existing raw memory block under Memory management.
+	Src: The raw memory block to inherit
+	Size: The size of the raw memory block
+	Returns: A managed memory block that is now in control of the raw memory buffer
+*/
 EXPORT void* mamInherit(void* Src, unsigned long Size);
+
+/*
+	Grab a reference to a managed memory block, increments the ref counter
+	mam: A managed memory block
+	Returns: A reference to the managed memory block
+*/
 EXPORT void* mamRetain(void* mam);
+
+/*
+	Free a reference to a managed memory block, decrementing the ref counter.
+	If the ref counter < 1 than the raw memory is freed.
+	mam: A managed memory block
+*/
 EXPORT void mamRelease(void* mam);
+
+/*
+	Resize a managed memory block
+	mam: Existing managed memory block
+	NewSize: The new size of the managed memory block
+*/
 EXPORT void mamRealloc(void* mam, unsigned long NewSize);
+
+/*
+	Copy a managed memory block, including the raw memory into
+	a new managed memory block
+	mam: Existing managed memory block
+	Returns: A new copy of the original managed memory block
+*/
 EXPORT void* mamDuplicate(void* mam);
+
+/*
+	Get a pointer to the raw memory buffer that a managed
+	memory block is controlling.
+	mam: Existing managed memory block
+	Returns: Raw memory buffer
+*/
 EXPORT void* mamRaw(void* mam);
+
+/*
+	Get the actual raw size of a managed memory block
+	mam: Existing managed memory block
+	Returns: The raw memory size
+*/
 EXPORT unsigned long mamRawSize(void* mam);
 
 //String Helper
