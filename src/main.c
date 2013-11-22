@@ -26,14 +26,19 @@
 
 void Lock()
 {
+	printf("** Lock() Called **\n");
 }
 
 void UnLock()
 {
+	printf("** UnLock() Called **\n");
 }
 
 int main(int argc, char* argv[])
 {
+
+	memAlMan_EnableThreads(&Lock, &UnLock);
+
 	int i = 0;
 	
 	void* setA = mamAlloc(1000);
