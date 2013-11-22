@@ -51,9 +51,16 @@ void AllocUnit_Delete(AllocUnit* u)
 	mamThreadLock();
 	unsigned long Idx = 0;
 	unsigned long i = 0;
+	
 	for(i = 0; i < UnitCount; i++)
+	{
 		if(Units[i] != NULL && Units[i]->i == u->i)
+		{
 			Idx = i;
+			break;
+		}
+	}
+			
 	if(u->m != NULL)
 		free(u->m);
 	free(u);
@@ -72,8 +79,13 @@ AllocUnit* AllocUnit_GetById(unsigned long Id)
 	
 	unsigned long i = 0;
 	for(i = 0; i < UnitCount && r == NULL; i++)
+	{
 		if(Units[i] != NULL && Units[i]->i == Id)
+		{
 			r = Units[i];
+			break;
+		}
+	}
 
 	mamThreadUnLock();
 	
@@ -103,6 +115,7 @@ AllocUnit* AllocUnit_New()
 		{
 			found = true;
 			Units[i] = r;
+			break;
 		}
 	}
 	
