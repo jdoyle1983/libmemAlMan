@@ -54,15 +54,15 @@ void AllocUnit_Delete(AllocUnit* u)
 	
 	for(i = 0; i < UnitCount; i++)
 	{
-		if(Units[i] != NULL && Units[i]->i == u->i)
+		if(Units[i] != NULL && Units[i]->Id == u->Id)
 		{
 			Idx = i;
 			break;
 		}
 	}
 			
-	if(u->m != NULL)
-		free(u->m);
+	if(u->Memory != NULL)
+		free(u->Memory);
 	free(u);
 	Units[Idx] = NULL;
 	mamThreadUnLock();
@@ -73,23 +73,23 @@ AllocUnit* AllocUnit_GetById(unsigned long Id)
 	if(Units == NULL)
 		memAlMan_Init();
 		
-	AllocUnit* r = NULL;
+	AllocUnit* ReturnValue = NULL;
 	
 	mamThreadLock();
 	
 	unsigned long i = 0;
-	for(i = 0; i < UnitCount && r == NULL; i++)
+	for(i = 0; i < UnitCount && ReturnValue == NULL; i++)
 	{
-		if(Units[i] != NULL && Units[i]->i == Id)
+		if(Units[i] != NULL && Units[i]->Id == Id)
 		{
-			r = Units[i];
+			ReturnValue = Units[i];
 			break;
 		}
 	}
 
 	mamThreadUnLock();
 	
-	return r;
+	return ReturnValue;
 };
 
 AllocUnit* AllocUnit_New()
@@ -97,12 +97,12 @@ AllocUnit* AllocUnit_New()
 	if(Units == NULL)
 		memAlMan_Init();
 		
-	AllocUnit* r = NULL;
-	r = (AllocUnit*)malloc(sizeof(AllocUnit));
-	r->r = 1;
-	r->s = 0;
-	r->m = NULL;
-	r->i = UnitId;
+	AllocUnit* ReturnValue = NULL;
+	ReturnValue = (AllocUnit*)malloc(sizeof(AllocUnit));
+	ReturnValue->RefCount = 1;
+	ReturnValue->Size = 0;
+	ReturnValue->Memory = NULL;
+	ReturnValue->Id = UnitId;
 	UnitId++;
 	
 	mamThreadLock();
@@ -114,7 +114,7 @@ AllocUnit* AllocUnit_New()
 		if(Units[i] == NULL)
 		{
 			found = true;
-			Units[i] = r;
+			Units[i] = ReturnValue;
 			break;
 		}
 	}
@@ -123,12 +123,12 @@ AllocUnit* AllocUnit_New()
 	{
 		UnitCount++;
 		Units = (AllocUnit**)realloc(Units, sizeof(AllocUnit*) * UnitCount);
-		Units[UnitCount - 1] = r;
+		Units[UnitCount - 1] = ReturnValue;
 	}
 	
 	mamThreadUnLock();
 	
-	return r;
+	return ReturnValue;
 };
 
 EXPORT void memAlMan_EnableThreads(void(*mamLock)(), void(*mamUnLock)())
@@ -172,8 +172,8 @@ EXPORT void memAlMan_Maintain()
 		if(Units[i] != NULL)
 			usedCount++;
 			
-		if(Units[i] != NULL && Units[i]->i >= largeId)
-			largeId = Units[i]->i + 1;
+		if(Units[i] != NULL && Units[i]->Id >= largeId)
+			largeId = Units[i]->Id + 1;
 	}
 	UnitId = largeId;
 	if(usedCount != UnitCount)

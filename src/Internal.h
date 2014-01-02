@@ -31,10 +31,10 @@
 
 typedef struct
 {
-	unsigned long i;
-	unsigned long r;
-	unsigned long s;
-	void* m;
+	unsigned long Id;
+	unsigned long RefCount;
+	unsigned long Size;
+	void* Memory;
 } AllocUnit;
 
 void AllocUnit_Delete(AllocUnit* u);

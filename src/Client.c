@@ -27,26 +27,26 @@
 
 EXPORT void* mamAlloc(unsigned long Size)
 {
-	AllocUnit* u = AllocUnit_New();
+	AllocUnit* Unit = AllocUnit_New();
 	
-	u->s = Size;
-	u->m = malloc(u->s);
+	Unit->Size = Size;
+	Unit->Memory = malloc(Unit->Size);
 	
 	#ifdef DEBUG
-		printf("mamDebug: mamAlloc (Id: %ld - Size: %ld)\n", u->i, u->s);
+		printf("mamDebug: mamAlloc (Id: %ld - Size: %ld)\n", Unit->Id, Unit->Size);
 	#endif
 	
-	return (void*)u->i;
+	return (void*)Unit->Id;
 };
 
 EXPORT void mamCopy(void* mam, unsigned long Offset, void* Src, unsigned long Size)
 {
-	AllocUnit* u = AllocUnit_GetById((unsigned long)mam);
-	if(u != NULL)
+	AllocUnit* Unit = AllocUnit_GetById((unsigned long)mam);
+	if(Unit != NULL)
 	{
-		memcpy(u->m + Offset, Src, Size);
+		memcpy(Unit->Memory + Offset, Src, Size);
 		#ifdef DEBUG
-			printf("mamDebug: mamCopy (Id: %ld) - SUCCESS\n", u->i);
+			printf("mamDebug: mamCopy (Id: %ld) - SUCCESS\n", Unit->Id);
 		#endif
 	}
 	else
@@ -59,28 +59,28 @@ EXPORT void mamCopy(void* mam, unsigned long Offset, void* Src, unsigned long Si
 
 EXPORT void* mamInherit(void* Src, unsigned long Size)
 {
-	AllocUnit* u = AllocUnit_New();
+	AllocUnit* Unit = AllocUnit_New();
 	
-	u->s = Size;
-	u->m = Src;
+	Unit->Size = Size;
+	Unit->Memory = Src;
 	
 	#ifdef DEBUG
-		printf("mamDebug: mamInherit (Id: %ld - Size: %ld)\n", u->i, u->s);
+		printf("mamDebug: mamInherit (Id: %ld - Size: %ld)\n", Unit->Id, Unit->Size);
 	#endif
 	
-	return (void*)u->i;
+	return (void*)Unit->Id;
 };
 
 EXPORT void* mamRetain(void* mam)
 {
-	AllocUnit* u = AllocUnit_GetById((unsigned long)mam);
-	if(u != NULL)
+	AllocUnit* Unit = AllocUnit_GetById((unsigned long)mam);
+	if(Unit != NULL)
 	{
-		u->r++;
+		Unit->RefCount++;
 		#ifdef DEBUG
-			printf("mamDebug: mamRetain (Id: %ld - RefCount: %ld) - SUCCESS\n", u->i, u->r);
+			printf("mamDebug: mamRetain (Id: %ld - RefCount: %ld) - SUCCESS\n", Unit->Id, Unit->RefCount);
 		#endif
-		return (void*)u->i;
+		return (void*)Unit->Id;
 	}
 	else
 	{
@@ -93,21 +93,21 @@ EXPORT void* mamRetain(void* mam)
 
 EXPORT void mamRelease(void* mam)
 {
-	AllocUnit* u = AllocUnit_GetById((unsigned long)mam);
-	if(u != NULL)
+	AllocUnit* Unit = AllocUnit_GetById((unsigned long)mam);
+	if(Unit != NULL)
 	{
-		u->r--;
-		if(u->r <= 0)
+		Unit->RefCount--;
+		if(Unit->RefCount <= 0)
 		{
 			#ifdef DEBUG
-				printf("mamDebug: mamRelease (Id: %ld - RefCount: %ld) - SUCCESS (Deleted)\n", u->i, u->r);
+				printf("mamDebug: mamRelease (Id: %ld - RefCount: %ld) - SUCCESS (Deleted)\n", Unit->Id, Unit->RefCount);
 			#endif
-			AllocUnit_Delete(u);
+			AllocUnit_Delete(Unit);
 		}
 		else
 		{
 			#ifdef DEBUG
-				printf("mamDebug: mamRelease (Id: %ld - RefCount: %ld) - SUCCESS\n", u->i, u->r);
+				printf("mamDebug: mamRelease (Id: %ld - RefCount: %ld) - SUCCESS\n", Unit->Id, Unit->RefCount);
 			#endif
 		}
 	}
@@ -121,14 +121,14 @@ EXPORT void mamRelease(void* mam)
 
 EXPORT void mamRealloc(void* mam, unsigned long NewSize)
 {
-	AllocUnit* u = AllocUnit_GetById((unsigned long)mam);
-	if(u != NULL)
+	AllocUnit* Unit = AllocUnit_GetById((unsigned long)mam);
+	if(Unit != NULL)
 	{
-		u->m = realloc(u->m, NewSize);
-		u->s = NewSize;
+		Unit->Memory = realloc(Unit->Memory, NewSize);
+		Unit->Size = NewSize;
 		
 		#ifdef DEBUG
-			printf("mamDebug: mamRealloc (Id: %ld - NewSize: %ld) - SUCCESS\n", u->i, NewSize);
+			printf("mamDebug: mamRealloc (Id: %ld - NewSize: %ld) - SUCCESS\n", Unit->Id, NewSize);
 		#endif
 	}
 	else
@@ -141,19 +141,19 @@ EXPORT void mamRealloc(void* mam, unsigned long NewSize)
 
 EXPORT void* mamDuplicate(void* mam)
 {
-	AllocUnit* u = AllocUnit_GetById((unsigned long)mam);
-	if(u != NULL)
+	AllocUnit* Unit = AllocUnit_GetById((unsigned long)mam);
+	if(Unit != NULL)
 	{
-		AllocUnit* un = AllocUnit_New();
-		un->s = u->s;
-		un->m = malloc(un->s);
-		memcpy(un->m, u->m, u->s);
+		AllocUnit* NewUnit = AllocUnit_New();
+		NewUnit->Size = Unit->Size;
+		NewUnit->Memory = malloc(NewUnit->Size);
+		memcpy(NewUnit->Memory, Unit->Memory, Unit->Size);
 		
 		#ifdef DEBUG
-			printf("mamDebug: mamDuplicate (Id: %ld - New Id: %ld) - SUCCESS\n", u->i, un->i);
+			printf("mamDebug: mamDuplicate (Id: %ld - New Id: %ld) - SUCCESS\n", Unit->Id, NewUnit->Id);
 		#endif
 		
-		return (void*)un->i;
+		return (void*)NewUnit->Id;
 	}
 	else
 	{
@@ -166,10 +166,10 @@ EXPORT void* mamDuplicate(void* mam)
 
 EXPORT void* mamRaw(void* mam)
 {	
-	AllocUnit* u = AllocUnit_GetById((unsigned long)mam);
-	if(u != NULL)
+	AllocUnit* Unit = AllocUnit_GetById((unsigned long)mam);
+	if(Unit != NULL)
 	{
-		return u->m;
+		return Unit->Memory;
 	}
 	else
 	{
@@ -182,10 +182,10 @@ EXPORT void* mamRaw(void* mam)
 
 EXPORT unsigned long mamRawSize(void* mam)
 {
-	AllocUnit* u = AllocUnit_GetById((unsigned long)mam);
-	if(u != NULL)
+	AllocUnit* Unit = AllocUnit_GetById((unsigned long)mam);
+	if(Unit != NULL)
 	{
-		return u->s;
+		return Unit->Size;
 	}
 	else
 	{
